@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="4f95eed4-ab96-40f0-89a6-b7704c7850de" name="Changes" comment="Final project with IP-changing">
+      <change afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/ScraporaTask.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_09_12_2025_20_41_[Changes]/shelved.patch" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_09_12_2025_20_41__Changes_.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SeleniumScraper.py" beforeDir="false" afterPath="$PROJECT_DIR$/SeleniumScraper.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/handelsregister/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/handelsregister/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/plikiXMLbyScrapy/BW-Stuttgart_HRB_25386+SI-20251208163037.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/plikiXMLbyScrapy/BY-Traunstein_HRB_25386+SI-20251208163040.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/plikiXMLbyScrapy/NW-Aachen_HRB_25386+SI-20251208163004.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/plikiXMLbyScrapy/NW-Bonn_HRB_25386+SI-20251208163007.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/plikiXMLbyScrapy/NW-Duisburg_HRB_25386+SI-20251208163019.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/plikiXMLbyScrapy/NW-Essen_HRB_25386+SI-20251208163001.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/plikiXMLbyScrapy/RP-Koblenz_HRB_25386+SI-20251208163022.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/plikiXMLbyScrapy/RP-Montabaur_HRB_25386+SI-20251208163012.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/plikiXMLbyScrapy/SH-Kiel_HRB_25386_KI+SI-20251208163026.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/plikiXMLbyScrapy/SH-Lübeck_HRB_25386_HL+SI-20251208163010.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/plikiXMLbyScrapy/SN-Chemnitz_HRB_25386+SI-20251208162959.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/plikiXMLbyScrapy/SN-Dresden_HRB_25386+SI-20251208163015.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/plikiXMLbyScrapy/ST-Stendal_HRB_25386+SI-20251208163029.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/plikiXMLbySelenium/BW-Stuttgart_HRB_25386+SI-20251208162759.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/plikiXMLbySelenium/BY-Traunstein_HRB_25386+SI-20251208162802.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/plikiXMLbySelenium/NW-Aachen_HRB_25386+SI-20251208162728.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/plikiXMLbySelenium/NW-Bonn_HRB_25386+SI-20251208162731.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/plikiXMLbySelenium/NW-Duisburg_HRB_25386+SI-20251208162745.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/plikiXMLbySelenium/NW-Essen_HRB_25386+SI-20251208162725.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/plikiXMLbySelenium/RP-Koblenz_HRB_25386+SI-20251208162748.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/plikiXMLbySelenium/RP-Montabaur_HRB_25386+SI-20251208162736.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/plikiXMLbySelenium/SH-Kiel_HRB_25386_KI+SI-20251208162752.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/plikiXMLbySelenium/SH-Lübeck_HRB_25386_HL+SI-20251208162734.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/plikiXMLbySelenium/SN-Chemnitz_HRB_25386+SI-20251208162718.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/plikiXMLbySelenium/SN-Dresden_HRB_25386+SI-20251208162741.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/plikiXMLbySelenium/ST-Stendal_HRB_25386+SI-20251208162755.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/result.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/items.json" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ChangesViewManager">
+    <option name="groupingKeys">
+      <option value="directory" />
+      <option value="repository" />
+    </option>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="PUSH_AUTO_UPDATE" value="true" />
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RESET_MODE" value="SOFT" />
+    <option name="UPDATE_TYPE" value="REBASE" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;b0rygo&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/b0rygo/Scrapy-Selenium-Task.git&quot;,
+    &quot;accountId&quot;: &quot;bae501e8-2fe1-4eea-87a2-18cacab9fc72&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 7
+}</component>
+  <component name="ProjectId" id="36YtOBcomrPCRmW0vLSm6lFJAN5" />
+  <component name="ProjectLevelVcsManager">
+    <OptionsSetting value="false" id="Update" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.AnalizaXML.executor": "Run",
+    "Python.SeleniumScraper.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "main",
+    "settings.editor.selected.configurable": "advanced.settings"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-python-sdk-164cda30dcd9-0af03a5fa574-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-252.26830.99" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="4f95eed4-ab96-40f0-89a6-b7704c7850de" name="Changes" comment="" />
+      <created>1765195297419</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1765195297419</updated>
+    </task>
+    <task id="LOCAL-00001" summary="Final project with IP-changing">
+      <option name="closed" value="true" />
+      <created>1765207887419</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1765207887419</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="origin/main" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Final project with IP-changing" />
+    <option name="LAST_COMMIT_MESSAGE" value="Final project with IP-changing" />
+  </component>
+</project>
