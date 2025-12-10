@@ -5,10 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4f95eed4-ab96-40f0-89a6-b7704c7850de" name="Changes" comment="full project without ip-changing">
+      <change afterPath="$PROJECT_DIR$/test/hm_downloader.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/test.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/test1.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SeleniumScraper.py" beforeDir="false" afterPath="$PROJECT_DIR$/SeleniumScraper.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/handelsregister/items.py" beforeDir="false" afterPath="$PROJECT_DIR$/handelsregister/items.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/handelsregister/spiders/handels_spider.py" beforeDir="false" afterPath="$PROJECT_DIR$/handelsregister/spiders/handels_spider.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/handelsregister/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/handelsregister/utils.py" afterDir="false" />
     </list>
@@ -70,6 +72,9 @@
     "Python.AnalizaXML.executor": "Run",
     "Python.SeleniumScraper.executor": "Run",
     "Python.download_files.executor": "Run",
+    "Python.hm_downloader.executor": "Run",
+    "Python.test.executor": "Run",
+    "Python.test1.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
@@ -78,6 +83,11 @@
     "settings.editor.selected.configurable": "advanced.settings"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\ScraporaTask\test" />
+    </key>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>

@@ -1,0 +1,20 @@
+# DANE DO ŻĄDANIA POST (Requests/Curl)
+URL=https://www.handelsregister.de/rp_web/sucheErgebnisse/welcome.xhtml
+JSESSIONID=tc02n01~87BBC8E569DE04C079080DFF757A6D5F.tc02n01
+VIEWSTATE=-2237252964326510073:3250032533379114485
+--------------------------------------------------------------------------------
+NR | FIRMA | ID_ELEMENTU_SI
+--------------------------------------------------------------------------------
+0 | Sachsen Amtsgericht Chemnitz HRB 25386 | ergebnissForm:selectedSuchErgebnisFormTable:0:j_idt219:6:fade_
+1 | Nordrhein-Westfalen Amtsgericht Essen HRB 25386 | ergebnissForm:selectedSuchErgebnisFormTable:1:j_idt219:6:fade_
+2 | Nordrhein-Westfalen Amtsgericht Aachen HRB 25386 | ergebnissForm:selectedSuchErgebnisFormTable:2:j_idt219:6:fade_
+3 | Nordrhein-Westfalen Amtsgericht Bonn HRB 25386 | ergebnissForm:selectedSuchErgebnisFormTable:3:j_idt219:6:fade_
+4 | Schleswig-Holstein Amtsgericht Lübeck HRB 25386 HL | ergebnissForm:selectedSuchErgebnisFormTable:4:j_idt219:6:fade_
+5 | Rheinland-Pfalz Amtsgericht Montabaur HRB 25386 | ergebnissForm:selectedSuchErgebnisFormTable:5:j_idt219:6:fade_
+6 | Sachsen Amtsgericht Dresden HRB 25386 | ergebnissForm:selectedSuchErgebnisFormTable:6:j_idt219:6:fade_
+7 | Nordrhein-Westfalen Amtsgericht Duisburg HRB 25386 | ergebnissForm:selectedSuchErgebnisFormTable:7:j_idt219:6:fade_
+8 | Rheinland-Pfalz Amtsgericht Koblenz HRB 25386 | ergebnissForm:selectedSuchErgebnisFormTable:8:j_idt219:6:fade_
+9 | Schleswig-Holstein Amtsgericht Kiel HRB 25386 KI | ergebnissForm:selectedSuchErgebnisFormTable:9:j_idt219:6:fade_
+10 | Sachsen-Anhalt Amtsgericht Stendal HRB 25386 | ergebnissForm:selectedSuchErgebnisFormTable:10:j_idt219:6:fade_
+11 | Baden-Württemberg Amtsgericht Stuttgart HRB 25386 | ergebnissForm:selectedSuchErgebnisFormTable:11:j_idt219:6:fade_
+12 | Bayern Amtsgericht Traunstein HRB 25386 | ergebnissForm:selectedSuchErgebnisFormTable:12:j_idt219:6:fade_

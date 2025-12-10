@@ -17,6 +17,7 @@ SEARCH_NUMBER = "25386"
 SEARCH_TYPE = "HRB"
 SEARCH_TOWN = "alle"
 OUTPUT_JSON = "result.json"
+SESSION_COOKIES_FILE = "session_cookies.json"
 
 _captured_requests = []
 
@@ -51,6 +52,132 @@ def wait_for_loading_gone(driver, timeout=10):
         )
     except Exception:
         pass  # Jeśli nie znaleziono loadera, to znaczy że go nie ma, idziemy dalej
+
+
+def save_session_cookies(driver, cookies_file: str = SESSION_COOKIES_FILE):
+    """Zapisuje cookies z aktywnej sesji Selenium do pliku JSON."""
+    try:
+        cookies = driver.get_cookies()
+        os.makedirs(os.path.dirname(cookies_file) or ".", exist_ok=True)
+        with open(cookies_file, "w", encoding="utf-8") as f:
+            json.dump(cookies, f, indent=2, ensure_ascii=False)
+        print(f"✅ Zapisano {len(cookies)} cookies do {cookies_file}")
+        return True
+    except Exception as e:
+        print(f"⚠️ Błąd przy zapisywaniu cookies: {e}")
+        return False
+
+
+def load_session_cookies(cookies_file: str = SESSION_COOKIES_FILE):
+    """Ładuje cookies z pliku JSON."""
+    try:
+        if not os.path.exists(cookies_file):
+            return []
+        with open(cookies_file, "r", encoding="utf-8") as f:
+            cookies = json.load(f)
+        return cookies if isinstance(cookies, list) else []
+    except Exception as e:
+        print(f"⚠️ Błąd przy ładowaniu cookies: {e}")
+        return []
+
+
+def download_file_with_post(
+    post_url: str,
+    post_params: dict,
+    output_path: str = None,
+    cookies_file: str = SESSION_COOKIES_FILE
+) -> tuple[bool, Optional[str]]:
+    """
+    Pobiera plik używając POST request z zapisanymi cookies z sesji Selenium.
+    
+    Args:
+        post_url: URL do POST requestu (np. 'https://www.handelsregister.de/rp_web/sucheErgebnisse/welcome.xhtml?cid=1')
+        post_params: Słownik z parametrami POST (jak z przechwyconego requestu)
+        output_path: Ścieżka do zapisania pliku (opcjonalnie - jeśli None, użyje nazwy z Content-Disposition)
+        cookies_file: Plik z zapisanymi cookies (domyślnie session_cookies.json)
+    
+    Returns:
+        tuple: (success: bool, filename: str lub None)
+    """
+    try:
+        cookies_list = load_session_cookies(cookies_file)
+        if not cookies_list:
+            print(f"⚠️ Brak zapisanych cookies w {cookies_file}. Najpierw uruchom scrapowanie.")
+            return False, None
+        
+        # Konwertujemy cookies z formatu Selenium do formatu requests
+        cookies_dict = {cookie["name"]: cookie["value"] for cookie in cookies_list}
+        
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Referer": post_url.split("?")[0],  # URL bez parametrów query
+            "Origin": "https://www.handelsregister.de",
+            "Accept": "*/*",
+            "Accept-Language": "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7",
+        }
+        
+        # Wykonujemy POST request
+        response = requests.post(
+            post_url,
+            data=post_params,
+            cookies=cookies_dict,
+            headers=headers,
+            allow_redirects=True,
+            timeout=30
+        )
+        
+        if response.status_code == 200:
+            # Próbujemy wyciągnąć nazwę pliku z Content-Disposition
+            content_disposition = response.headers.get("Content-Disposition", "")
+            filename = None
+            
+            if content_disposition:
+                # Parsujemy: attachment;filename="SN-Chemnitz_HRB_25386+SI-20251210175648.xml"
+                filename_match = re.search(r'filename[^;=\n]*=(([\'"]).*?\2|[^;\n]*)', content_disposition)
+                if filename_match:
+                    filename = filename_match.group(1).strip('"\'')
+                    # Dekodujemy URL encoding jeśli potrzeba
+                    try:
+                        filename = unquote(filename)
+                    except:
+                        pass
+            
+            # Jeśli nie mamy nazwy z Content-Disposition, używamy podanej lub generujemy
+            if not filename:
+                if output_path:
+                    filename = os.path.basename(output_path)
+                else:
+                    # Generujemy nazwę na podstawie timestampu
+                    filename = f"download_{int(time.time())}.xml"
+            
+            # Ustalamy pełną ścieżkę do zapisu
+            if output_path:
+                final_path = output_path
+            else:
+                # Używamy nazwy z Content-Disposition w bieżącym katalogu
+                final_path = filename
+            
+            # Tworzymy katalog jeśli potrzeba
+            os.makedirs(os.path.dirname(final_path) or ".", exist_ok=True)
+            
+            # Zapisujemy plik
+            with open(final_path, "wb") as f:
+                f.write(response.content)
+            
+            print(f"✅ Pobrano plik: {final_path} ({len(response.content)} bajtów)")
+            if content_disposition:
+                print(f"   📄 Nazwa z Content-Disposition: {content_disposition}")
+            return True, final_path
+        else:
+            print(f"❌ Błąd pobierania: Status {response.status_code}")
+            if response.status_code == 440:
+                print("⚠️ Sesja wygasła! Uruchom ponownie scrapowanie, aby odświeżyć cookies.")
+            return False, None
+            
+    except Exception as e:
+        print(f"❌ Błąd przy pobieraniu pliku: {e}")
+        return False, None
 
 
 def inject_request_interceptor(driver):
@@ -464,6 +591,9 @@ def run_full_flow(target_url: str, download_dir: str = "") -> None:
         wait.until(EC.presence_of_element_located((By.ID, "ergebnissForm:selectedSuchErgebnisFormTable_data")))
         wait_for_loading_gone(driver)
 
+        # Zapisujemy cookies z aktywnej sesji (potrzebne do późniejszego pobierania plików)
+        save_session_cookies(driver)
+
         rows = driver.find_elements(By.XPATH, "//tbody[@id='ergebnissForm:selectedSuchErgebnisFormTable_data']/tr")
 
         collected_links = []
@@ -552,3 +682,32 @@ if __name__ == "__main__":
     target_url = "https://www.handelsregister.de/"
 
     run_full_flow(target_url, download_dir="")
+    
+    # PRZYKŁAD: Jak pobrać plik używając przechwyconych parametrów POST
+    # 
+    # 1. Po uruchomieniu run_full_flow(), masz:
+    #    - result.json z przechwyconymi parametrami POST
+    #    - session_cookies.json z cookies sesji
+    #
+    # 2. Możesz użyć funkcji download_file_with_post():
+    #
+    #    from SeleniumScraper import download_file_with_post
+    #
+    #    post_url = "https://www.handelsregister.de/rp_web/sucheErgebnisse/welcome.xhtml?cid=1"
+    #    post_params = {
+    #        "ergebnissForm:selectedSuchErgebnisFormTable:0:j_idt219:6:fade_": "ergebnissForm:selectedSuchErgebnisFormTable:0:j_idt219:6:fade_",
+    #        "property": "Global.Dokumentart.SI"
+    #    }
+    #    
+    #    success, filename = download_file_with_post(
+    #        post_url=post_url,
+    #        post_params=post_params,
+    #        output_path="pobrany_plik.xml"  # opcjonalnie - jeśli None, użyje nazwy z Content-Disposition
+    #    )
+    #
+    # 3. Lub użyj skryptu pomocniczego:
+    #
+    #    python download_files.py
+    #
+    #    Ten skrypt automatycznie pobierze wszystkie pliki z result.json używając
+    #    przechwyconych parametrów POST i zapisanych cookies.

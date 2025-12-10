@@ -1,0 +1,11 @@
+[
+  {
+    "domain": "www.handelsregister.de",
+    "httpOnly": true,
+    "name": "JSESSIONID",
+    "path": "/",
+    "sameSite": "Lax",
+    "secure": true,
+    "value": "tc02n02~CAB5FF67708D89A5578B9BA925DD3FD1.tc02n02"
+  }
+]
