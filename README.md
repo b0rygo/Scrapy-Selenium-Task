@@ -1,18 +1,16 @@
 ## Overview
 
 # UPDATE 09.12.2025
-- Zakomentowałem wszelkie użycie Mullvada (rotacji IP) w celach sprawdzenia samego kodu dla dwoch scraperów. 
+- **Rotacja IP przez Mullvad VPN została wyłączona (zakomentowana)** - zmieniono to ponieważ sprawdzający nie mają dostępu do Mullvada. Kod rotacji IP pozostaje w komentarzach w `handelsregister/utils.py` i można go łatwo przywrócić odkomentowując odpowiednie sekcje. 
 
 Projekt zawiera dwa niezależne tryby pracy:
 - **SeleniumScraper.py** – samodzielny skrypt uruchamiający przeglądarkę (undetected_chromedriver), wykonujący kroki na handelsregister.de, pobierający pliki XML (SI) do katalogu i analizujący je do jednego pliku JSON.
 - **Scrapy** – projekt spidera, który uruchamia wewnętrznie ten sam proces i następnie parsuje XML do itemów i zapisu w JSON.
 
 Katalogi i pliki kluczowe:
-- `SeleniumScraper.py` – skrypt standalone (ETAP1 + analiza).
+- `SeleniumScraper.py` – skrypt standalone (pełna ścieżka scrapowania).
 - `handelsregister/` – projekt Scrapy (spider + utils + settings).
-- `plikiXMLbySelenium/` – domyślny katalog pobrań XML (z Selenium).
-- `plikiXMLbyScrapy/` – domyślny katalog pobrań XML (z Scrapy).
-- `results/items.json` (Scrapy) lub `result.json` (Selenium).
+- `results/items.json` (Scrapy) lub `result.json` (Selenium) – pliki z zebranymi linkami.
 
 ## Wymagania
 
@@ -23,25 +21,25 @@ Katalogi i pliki kluczowe:
   - `scrapy`
   - `xmltodict`
   - `pandas`
-  - `xmltodict`
   
 Instalacja (w aktywnym virtualenv):
 ```
-pip install undetected-chromedriver selenium scrapy xmltodict pandas
+pip install undetected-chromedriver selenium scrapy xmltodict pandas requests
 ```
 
 ## Uruchamianie – skrypt Selenium (standalone)
 
-1. (Opcjonalnie) ustaw URL i katalog pobrań:
+1. (Opcjonalnie) ustaw URL:
    - `TARGET_URL` (domyślnie `https://www.handelsregister.de/`)
-   - `XML_DIR` (domyślnie `plikiXML`)
 2. Uruchom:
 ```
 python SeleniumScraper.py
 ```
 3. Efekty:
-   - ETAP1: pobiera pliki SI (XML) do `XML_DIR` (domyślnie `plikiXML`).
-   - ETAP2: parsuje wszystkie XML, usuwa prefix `tns:`, wymusza listę `beteiligung`, zapisuje jeden plik JSON (`AllData.json` lub `wszystkie_dane.json` – zależnie od aktualnej konfiguracji w pliku).
+   - Przechodzi przez pełną ścieżkę: main_page → search_page (input) → search_results.
+   - Przechwytuje POST requesty z onclick przez JavaScript injection (BEZ faktycznego pobierania plików).
+   - Zbiera wszystkie linki z wyników wyszukiwania wraz z przechwyconymi requestami.
+   - Zapisuje jako itemy w formacie JSON do `result.json`.
 
 ## Uruchamianie – Scrapy
 
@@ -54,37 +52,73 @@ scrapy crawl handels_spider
    - argumenty: `scrapy crawl handels_spider -a target_url=... -a download_dir=plikiXML`
    - zmienne środowiskowe: `TARGET_URL`, `XML_DIR`
 4. Efekty:
-   - Spider wywołuje ETAP1 (Selenium) wewnątrz `handelsregister/utils.py`, pobiera XML do `download_dir` (domyślnie `plikiXML`).
-   - Następnie parsuje wszystkie XML (jak w skrypcie) i zapisuje itemy do `results/items.json` (zdefiniowane w `handelsregister/settings.py` – `FEEDS`).
+   - Spider wywołuje scrapowanie (Selenium) wewnątrz `handelsregister/utils.py`.
+   - Przechodzi przez pełną ścieżkę: main_page → search_page (input) → search_results.
+   - Przechwytuje POST requesty z onclick przez JavaScript injection (BEZ faktycznego pobierania plików).
+   - Zbiera wszystkie linki z wyników wyszukiwania wraz z przechwyconymi requestami.
+   - Zapisuje jako itemy do `results/items.json`.
 
-## Szczegóły działania ETAP1 (Selenium)
+## Szczegóły działania (Pełna ścieżka scrapowania)
 
 Kroki automatyczne (w `SeleniumScraper.py` lub `handelsregister/utils.py`):
-1. Otwiera `https://www.handelsregister.de/` (lub `TARGET_URL`).
-2. Klik „Normale Suche”.
-3. Wybiera „Registerart” = HRB.
-4. Wpisuje numer rejestru 25386.
-5. Ustawia „Ergebnisse pro Seite” = 100.
-6. Klik „Suchen”.
-7. Iteracyjnie klika linki SI wg wzorca XPath `//*[@id="ergebnissForm:selectedSuchErgebnisFormTable:{i}:j_idt219:6:fade_"]` aż do braku kolejnych – pobiera wszystkie XML do katalogu `XML_DIR`.
-8. Czeka krótko, zamyka driver.
+1. **main_page**: Otwiera `https://www.handelsregister.de/` (lub `TARGET_URL`).
+2. **search_page**: Przechodzi do "Normale Suche" (formularz wyszukiwania).
+3. **input**: Wypełnia formularz:
+   - Wybiera „Registerart” = HRB.
+   - Wpisuje numer rejestru 25386.
+   - Wybiera z dostepnych miast na alle(tak jak podane w poleceniu)
+   - Ustawia „Ergebnisse pro Seite” = 100.
+4. **search_request**: Klik „Suchen” (wysyła request wyszukiwania z danymi wejściowymi).
+5. **search_results**: Zbiera wszystkie linki z wyników wyszukiwania:
+   - Iteruje po wszystkich wierszach tabeli wyników.
+   - Dla każdego wiersza zbiera wszystkie dostępne linki (href, text, title).
+   - Zapisuje jako itemy w formacie JSON: `{"count": <liczba>, "items": [{"row_number": N, "links": [...]}, ...]}`.
+6. Zamyka driver.
 
-## Szczegóły działania ETAP2 (analiza XML)
-
-- Czyści prefix `tns:`.
-- Parsuje `xmltodict.parse(..., force_list={"beteiligung"})`.
-- Dodaje `zrodlo_plik`.
-- Buduje jeden obiekt JSON: `{"count": <liczba>, "items": [ {...}, ... ]}`.
-- Zapis do pliku (`AllData.json`, `wszystkie_dane.json` lub `results/items.json` w przypadku Scrapy FEEDS).
+**Ważne**: 
+- Projekt nie pobiera plików XML, tylko przechwytuje POST requesty z onclick (anulowane przed pobraniem).
+- Używa JavaScript injection do przechwytywania XMLHttpRequest i PrimeFaces.addSubmitParam PRZED faktycznym wysłaniem requestu (podobne do Filter/UrlHistory po stronie serwera).
+- Przechwycone requesty są zapisywane w `window._capturedRequests` (podobne do `UrlHistory.store`).
+- Zapisuje przechwycone requesty (URL, parametry POST) jako itemy JSON.
 
 ## Przydatne zmienne środowiskowe
 
 - `TARGET_URL` – URL strony (domyślnie handelsregister.de).
-- `XML_DIR` – katalog pobrań/odczytu XML (domyślnie `plikiXML`).
+
+## Pobieranie plików XML
+
+**Problem**: Linki z parametrami GET nie działają bezpośrednio - dostajesz błąd 440 (wygasła sesja), ponieważ:
+- Wymagają aktywnej sesji (cookies)
+- Faktyczny request to POST z parametrami w body, nie GET w URL
+- Sesja wygasa po czasie nieaktywności
+
+**Rozwiązanie**: 
+1. `SeleniumScraper.py` automatycznie zapisuje cookies z aktywnej sesji do `session_cookies.json`
+2. Użyj funkcji `download_file_with_session()` z modułu `SeleniumScraper` do pobierania plików:
+
+```python
+from SeleniumScraper import download_file_with_session
+
+post_url = "https://www.handelsregister.de/rp_web/sucheErgebnisse/welcome.xhtml"
+post_params = {
+    "ergebnissForm:selectedSuchErgebnisFormTable:0:j_idt222:1:fade_": "ergebnissForm:selectedSuchErgebnisFormTable:0:j_idt222:1:fade_",
+    "property": "Global.Dokumentart.CD"
+}
+download_file_with_session(post_url, post_params, "pobrany_plik.xml")
+```
+
+3. Lub użyj skryptu pomocniczego `download_files.py` do pobrania wszystkich plików z `result.json`:
+
+```bash
+python download_files.py
+```
 
 ## Notatki
 
-- Skrypty używają `undetected_chromedriver` w trybie headless (ustawione). Możesz odkomentować w `utils.py` lub `SeleniumScraper.py`.
+- Projekt używa **Selenium z JavaScript injection** do przechwytywania requestów sieciowych.
+- JavaScript injection przechwytuje `XMLHttpRequest.send()` i `PrimeFaces.addSubmitParam()` PRZED faktycznym wysłaniem requestu (podobne do Filter/UrlHistory po stronie serwera).
+- Przechwycone requesty są anulowane przez `xhr.abort()` - request NIE trafia do serwera.
+- **Cookies z sesji są zapisywane** do `session_cookies.json` i mogą być użyte do późniejszego pobierania plików przez POST request.
 - Scrapy zapisuje wynik do `results/items.json` zgodnie z `FEEDS` w `handelsregister/settings.py`.
-- Skrypty oba wykorzystują rotacje IP w razie nieudanych prób przy pomocy MullvadVPN.
+- **Rotacja IP przez Mullvad VPN jest wyłączona (zakomentowana)** - zmieniono to ponieważ sprawdzający nie mają dostępu do Mullvada.
 

@@ -2,6 +2,6 @@ import scrapy
 
 
 class HandelsItem(scrapy.Item):
-    zrodlo_plik = scrapy.Field()
-    dane = scrapy.Field()
+    row_number = scrapy.Field()
+    links = scrapy.Field()  # Lista słowników z href, text, title
 
