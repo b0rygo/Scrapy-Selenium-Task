@@ -1,3 +1,4 @@
+import json
 import os
 import re
 import time
@@ -10,6 +11,12 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+
+# Parametry wyszukiwania (takie same jak w SeleniumScraper.py)
+SEARCH_NUMBER = "25386"
+SEARCH_TYPE = "HRB"
+SEARCH_TOWN = "alle"
+SESSION_COOKIES_FILE = "session_cookies.json"
 
 # Globalna zmienna do przechowywania przechwyconych requestów (podobne do UrlHistory)
 _captured_requests = []
@@ -356,6 +363,33 @@ def wait_for_loading_gone(driver, timeout=10):
         pass
 
 
+def save_session_cookies(driver, cookies_file: str = SESSION_COOKIES_FILE):
+    """Zapisuje cookies z aktywnej sesji Selenium do pliku JSON."""
+    try:
+        cookies = driver.get_cookies()
+        os.makedirs(os.path.dirname(cookies_file) or ".", exist_ok=True)
+        with open(cookies_file, "w", encoding="utf-8") as f:
+            json.dump(cookies, f, indent=2, ensure_ascii=False)
+        print(f"✅ Zapisano {len(cookies)} cookies do {cookies_file}")
+        return True
+    except Exception as e:
+        print(f"⚠️ Błąd przy zapisywaniu cookies: {e}")
+        return False
+
+
+def load_session_cookies(cookies_file: str = SESSION_COOKIES_FILE):
+    """Ładuje cookies z pliku JSON."""
+    try:
+        if not os.path.exists(cookies_file):
+            return []
+        with open(cookies_file, "r", encoding="utf-8") as f:
+            cookies = json.load(f)
+        return cookies if isinstance(cookies, list) else []
+    except Exception as e:
+        print(f"⚠️ Błąd przy ładowaniu cookies: {e}")
+        return []
+
+
 def run_etap1_scrape(target_url: str, download_dir: str = "") -> list:
     """Uruchamia scrapowanie i zwraca listę linków z wyników wyszukiwania."""
     driver = None
@@ -374,26 +408,26 @@ def run_etap1_scrape(target_url: str, download_dir: str = "") -> list:
             EC.element_to_be_clickable((By.ID, "naviForm:normaleSucheLink"))
         )
         normale_suche.click()
-        time.sleep(2)
         wait_for_loading_gone(driver)
-        
+        time.sleep(1)
+
+        # 3. Wypełnianie formularza (INPUT DATA)
         print("ETAP2 - WYBOR Z FORMULARZA")
 
+        # HRB (Registerart)
         register_label = wait.until(
             EC.element_to_be_clickable((By.ID, "form:registerArt_label"))
         )
         register_label.click()
-        time.sleep(2)
+        time.sleep(1)
         hrb_option = wait.until(
             EC.element_to_be_clickable(
-                (
-                    By.XPATH,
-                    "//li[@data-label='HRB' or normalize-space(text())='HRB']",
-                )
+                (By.XPATH, f"//li[contains(text(), '{SEARCH_TYPE}')]")
             )
         )
         hrb_option.click()
-        time.sleep(2)
+        wait_for_loading_gone(driver)
+        time.sleep(1)
 
         try:
             driver.find_element(By.TAG_NAME, "body").send_keys(Keys.ESCAPE)
@@ -403,37 +437,44 @@ def run_etap1_scrape(target_url: str, download_dir: str = "") -> list:
         except Exception:
             driver.execute_script("document.body.click();")
 
+        # NUMBER (Registernummer)
         register_input = wait.until(
-            EC.element_to_be_clickable((By.ID, "form:registerNummer"))
+            EC.presence_of_element_located((By.ID, "form:registerNummer"))
         )
         register_input.clear()
-        register_input.send_keys("25386")
-        time.sleep(2)
+        register_input.send_keys(SEARCH_NUMBER)
+        time.sleep(1)
 
-        per_page_label = wait.until(
-            EC.element_to_be_clickable((By.ID, "form:ergebnisseProSeite_label"))
+        # ALL (Registergericht - miasto/sąd)
+        register_label1 = wait.until(
+            EC.element_to_be_clickable((By.ID, "form:registergericht_label"))
         )
-        per_page_label.click()
+        register_label1.click()
         time.sleep(2)
-        per_page_100 = wait.until(
+        town_option = wait.until(
             EC.element_to_be_clickable(
                 (
                     By.XPATH,
-                    "//li[@data-label='100' or @id='form:ergebnisseProSeite_3']",
+                    f"//ul[@id='form:registergericht_items']//li[@data-label='{SEARCH_TOWN}']",
                 )
             )
         )
-        per_page_100.click()
+        town_option.click()
+        wait_for_loading_gone(driver)
+        time.sleep(1)
 
+        # Opcjonalnie: Ustawienie 100 wyników
         try:
-            driver.find_element(By.TAG_NAME, "body").send_keys(Keys.ESCAPE)
-            WebDriverWait(driver, 5).until(
-                EC.invisibility_of_element_located(
-                    (By.ID, "form:ergebnisseProSeite_panel")
-                )
+            per_page_label = driver.find_element(By.ID, "form:ergebnisseProSeite_label")
+            per_page_label.click()
+            per_page_100 = wait.until(
+                EC.element_to_be_clickable((By.XPATH, "//li[contains(@data-label, '100')]"))
             )
+            per_page_100.click()
+            wait_for_loading_gone(driver)
+            time.sleep(1)
         except Exception:
-            driver.execute_script("document.body.click();")
+            print("⚠️ Nie udało się zmienić liczby wyników na 100, zostawiam domyślną.")
 
         suche_btn = wait.until(
             EC.element_to_be_clickable((By.ID, "form:btnSuche"))
@@ -447,6 +488,9 @@ def run_etap1_scrape(target_url: str, download_dir: str = "") -> list:
         wait.until(EC.presence_of_element_located((By.ID, "ergebnissForm:selectedSuchErgebnisFormTable_data")))
         time.sleep(2)
         wait_for_loading_gone(driver)
+
+        # Zapisujemy cookies z aktywnej sesji (potrzebne do późniejszego pobierania plików)
+        save_session_cookies(driver)
 
         print("ETAP3 - ZBIERANIE LINKOW SI")
         
