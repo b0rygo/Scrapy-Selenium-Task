@@ -1,7 +1,7 @@
 ## Overview
 
-# UPDATE 09.12.2025
-- **Rotacja IP przez Mullvad VPN została wyłączona (zakomentowana)** - zmieniono to ponieważ sprawdzający nie mają dostępu do Mullvada. Kod rotacji IP pozostaje w komentarzach w `handelsregister/utils.py` i można go łatwo przywrócić odkomentowując odpowiednie sekcje. 
+# UPDATE 10.12.2025
+-  scrapowanie metodą "na dwa kroki" (pozyskanie danych przez Selenium i pobieranie przez requests) nie powiodło się, ponieważ strona H&M jest chroniona przez zaawansowany system anty-botowy (Akamai Bot Manager). System ten wiąże sesję nie tylko z ciasteczkami, ale również z unikalnym "odciskiem palca" przeglądarki (TLS Fingerprint) i aktywnym wykonywaniem kodu JavaScript, czego biblioteka requests nie potrafi symulować. W momencie przełączenia się na requests, serwer wykrył brak cech prawdziwej przeglądarki oraz zmianę sygnatury połączenia, przez co natychmiast unieważnił tokeny sesyjne i zablokował dostęp.
 
 Projekt zawiera dwa niezależne tryby pracy:
 - **SeleniumScraper.py** – samodzielny skrypt uruchamiający przeglądarkę (undetected_chromedriver), wykonujący kroki na handelsregister.de, pobierający pliki XML (SI) do katalogu i analizujący je do jednego pliku JSON.
