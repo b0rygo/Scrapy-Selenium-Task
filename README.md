@@ -1,5 +1,53 @@
 ## Overview
 
+# UPDATE 11.12.2025
+
+# Analiza Przechwyconych Żądań POST
+
+Po przeanalizowaniu 13 przechwyconych żądań POST potwierdzono, że linki do pobrania dokumentów SI nie są bezpośrednimi adresami URL, lecz wywołują złożoną operację po stronie serwera.
+
+### Wspólne Cechy Wszystkich Żądań
+
+Wszystkie 13 przechwyconych żądań charakteryzują się następującymi stałymi elementami:
+
+- **Adres docelowy (URL)**: Wszystkie żądania są kierowane na ten sam adres strony z wynikami:
+  ```
+  https://www.handelsregister.de/rp_web/sucheErgebnisse/welcome.xhtml?cid=1
+  ```
+- **Metoda HTTP**: Wszystkie wykorzystują metodę **POST**.
+- **Typ dokumentu**: Wszystkie zawierają stały parametr:
+  ```
+  'property': 'Global.Dokumentart.SI'
+  ```
+  który informuje serwer, że użytkownik chce pobrać dokument SI.
+- **Nazwa formularza**: Wszystkie żądania są powiązane z formularzem:
+  ```
+  ergebnissForm
+  ```
+
+### Identyfikator Unikalności
+
+Jedynym elementem, który odróżnia żądanie dla jednej firmy od drugiej, jest **unikalny identyfikator komponentu PrimeFaces**.
+Jest to para klucz-wartość, gdzie zarówno klucz, jak i wartość mają identyczną, złożoną strukturę:
+```
+ergebnissForm:selectedSuchErgebnisFormTable:X:j_idt219:6:fade_
+```
+**Zmienna wartość (X)**: Indeks wiersza w tabeli z wynikami (od 0 do 12).
+
+### Wnioski
+To dynamicznie generowane ID jest identyfikatorem wybranego wiersza/firmy w tabeli wyników. System JSF wykorzystuje ten parametr do wewnętrznego powiązania żądania POST z konkretnym rekordem danych po stronie serwera, umożliwiając mu zwrócenie właściwego pliku. Bez tego precyzyjnego indeksu, serwer nie byłby w stanie zidentyfikować, który dokument ma zostać pobrany.
+
+## Przydatne zmienne środowiskowe
+
+- `TARGET_URL` – URL strony (domyślnie handelsregister.de).
+
+## Pobieranie plików XML
+
+**Problem**: Linki z parametrami GET nie działają bezpośrednio - dostajesz błąd 440 (wygasła sesja), ponieważ:
+- Wymagają aktywnej sesji (cookies)
+- Faktyczny request to POST z parametrami w body, nie GET w URL
+- Sesja wygasa po czasie nieaktywności
+
 # UPDATE 10.12.2025
 -  scrapowanie metodą "na dwa kroki" (pozyskanie danych przez Selenium i pobieranie przez requests) nie powiodło się, ponieważ strona H&M jest chroniona przez zaawansowany system anty-botowy (Akamai Bot Manager). System ten wiąże sesję nie tylko z ciasteczkami, ale również z unikalnym "odciskiem palca" przeglądarki (TLS Fingerprint) i aktywnym wykonywaniem kodu JavaScript, czego biblioteka requests nie potrafi symulować. W momencie przełączenia się na requests, serwer wykrył brak cech prawdziwej przeglądarki oraz zmianę sygnatury połączenia, przez co natychmiast unieważnił tokeny sesyjne i zablokował dostęp.
 
@@ -78,47 +126,21 @@ Kroki automatyczne (w `SeleniumScraper.py` lub `handelsregister/utils.py`):
 **Ważne**: 
 - Projekt nie pobiera plików XML, tylko przechwytuje POST requesty z onclick (anulowane przed pobraniem).
 - Używa JavaScript injection do przechwytywania XMLHttpRequest i PrimeFaces.addSubmitParam PRZED faktycznym wysłaniem requestu (podobne do Filter/UrlHistory po stronie serwera).
-- Przechwycone requesty są zapisywane w `window._capturedRequests` (podobne do `UrlHistory.store`).
+- Przechwycone requesty są zapisywane w `window._capturedRequests`.
 - Zapisuje przechwycone requesty (URL, parametry POST) jako itemy JSON.
 
 ## Przydatne zmienne środowiskowe
 
 - `TARGET_URL` – URL strony (domyślnie handelsregister.de).
 
-## Pobieranie plików XML
-
 **Problem**: Linki z parametrami GET nie działają bezpośrednio - dostajesz błąd 440 (wygasła sesja), ponieważ:
 - Wymagają aktywnej sesji (cookies)
 - Faktyczny request to POST z parametrami w body, nie GET w URL
-- Sesja wygasa po czasie nieaktywności
-
-**Rozwiązanie**: 
-1. `SeleniumScraper.py` automatycznie zapisuje cookies z aktywnej sesji do `session_cookies.json`
-2. Użyj funkcji `download_file_with_session()` z modułu `SeleniumScraper` do pobierania plików:
-
-```python
-from SeleniumScraper import download_file_with_session
-
-post_url = "https://www.handelsregister.de/rp_web/sucheErgebnisse/welcome.xhtml"
-post_params = {
-    "ergebnissForm:selectedSuchErgebnisFormTable:0:j_idt222:1:fade_": "ergebnissForm:selectedSuchErgebnisFormTable:0:j_idt222:1:fade_",
-    "property": "Global.Dokumentart.CD"
-}
-download_file_with_session(post_url, post_params, "pobrany_plik.xml")
-```
-
-3. Lub użyj skryptu pomocniczego `download_files.py` do pobrania wszystkich plików z `result.json`:
-
-```bash
-python download_files.py
-```
+- Sesja wygasa po czasie nieaktywności (kilku milisekundach )
 
 ## Notatki
 
 - Projekt używa **Selenium z JavaScript injection** do przechwytywania requestów sieciowych.
-- JavaScript injection przechwytuje `XMLHttpRequest.send()` i `PrimeFaces.addSubmitParam()` PRZED faktycznym wysłaniem requestu (podobne do Filter/UrlHistory po stronie serwera).
-- Przechwycone requesty są anulowane przez `xhr.abort()` - request NIE trafia do serwera.
-- **Cookies z sesji są zapisywane** do `session_cookies.json` i mogą być użyte do późniejszego pobierania plików przez POST request.
 - Scrapy zapisuje wynik do `results/items.json` zgodnie z `FEEDS` w `handelsregister/settings.py`.
 - **Rotacja IP przez Mullvad VPN jest wyłączona (zakomentowana)** - zmieniono to ponieważ sprawdzający nie mają dostępu do Mullvada.
 
